@@ -12,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import br.com.tiagokihara.invuser.domain.User;
+import br.com.tiagokihara.invuser.dto.UserDto;
 import br.com.tiagokihara.invuser.repository.UserRepository;
 import br.com.tiagokihara.invuser.service.exception.UserNotFoundException;
 import br.com.tiagokihara.invuser.service.impl.UserServiceImpl;
@@ -29,7 +31,7 @@ public class UserServiceTests {
 
 	@BeforeEach
 	void setUp() {
-		this.userService = new UserServiceImpl(this.userRepository);
+		this.userService = new UserServiceImpl(this.userRepository, new ModelMapper());
 		this.user = new User(1L, "Tiago Kihara", "tiagokihara@gmail.com", "kihara");
 	}
 
@@ -43,22 +45,22 @@ public class UserServiceTests {
 	void shouldReturnAllUsers() {
 		List<User> usersMock = new ArrayList<>();
 		usersMock.add(this.user);
-		
 		when(userRepository.findAll()).thenReturn(usersMock);
 		
-		List<User> users = userService.getAll();
+		List<UserDto> usersDto = userService.getAll();
 		
-		Assertions.assertEquals(1, users.size());
-		Assertions.assertEquals(1L, users.get(0).getId());
+		Assertions.assertEquals(1, usersDto.size());
+		Assertions.assertEquals(1L, usersDto.get(0).getId());
 	}
 	
 	@Test
 	void shouldReturnUserById() {
 		when(userRepository.findById(1L)).thenReturn(Optional.of(this.user));
-		User user = userService.getById(1L);
+		UserDto userDto = userService.getById(1L);
 		
-		Assertions.assertEquals(1L, user.getId());
-		Assertions.assertEquals("Tiago Kihara", user.getName());
+		Assertions.assertEquals(1L, userDto.getId());
+		Assertions.assertEquals("Tiago Kihara", userDto.getName());
+		Assertions.assertEquals("tiagokihara@gmail.com", userDto.getEmail());
 	}
 
 }
